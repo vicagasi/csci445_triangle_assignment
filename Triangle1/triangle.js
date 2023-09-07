@@ -1,6 +1,5 @@
-
 var gl;
-var points = [];
+var trianglePoints = [];
 var numOfSubdivisions = 5;
 
 window.onload = function init()
@@ -9,6 +8,8 @@ window.onload = function init()
     
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
+
+    
 
     var vertices = [
         vec2(-1, -1),
@@ -29,7 +30,7 @@ window.onload = function init()
     // Load the data into the GPU
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(trianglePoints), gl.STATIC_DRAW);
 
     // Associate out shader variables with our data buffer
     var vPosition = gl.getAttribLocation( program, "vPosition" );
@@ -41,7 +42,7 @@ window.onload = function init()
 
 // Make a triangle
 function triangle(a, b, c) {
-    points.push(a, b, c);
+    trianglePoints.push(a, b, c);
 }
 
 function twist(vector){
@@ -63,19 +64,21 @@ function divideTriangle(a, b, c, count){
         triangle(a, b, c);
     } else {
         // Bisect sides
-        var ab_side = mix(a, b, 0.5);
-        var ac_side = mix(a, c, 0.5);
-        var bc_side = mix(b, c, 0.5);
+        var ab = mix(a, b, 0.5);
+        var ac = mix(a, c, 0.5);
+        var bc = mix(b, c, 0.5);
         count--;
 
         // Make new triangles
         divideTriangle(a, ab, ac, count - 1);
         divideTriangle(c, ac, bc, count - 1);
         divideTriangle(b, bc, ab, count - 1);
+
+        //FIX
     }
 }
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLES, 0, points.length);
+    gl.drawArrays( gl.TRIANGLES, 0, trianglePoints?.length);
 }
