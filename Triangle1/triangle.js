@@ -1,4 +1,6 @@
 var gl;
+var trianglePoints = [];
+var numOfSubdivisions = 3;
 
 window.onload = function init()
 {
@@ -7,16 +9,15 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    var trianglePoints = [];
-    var numOfSubdivisions = 5;
+    
 
     var vertices = [
-        vec2(-1, -1),
-        vec2(0, 1),
-        vec2(1, -1)
+        vec2(-0.4, -0.4),
+        vec2(0, 0.4),
+        vec2(0.4, -0.4)
     ];
 
-    divideTriangle(vertices[0], vertices[1], vertices[3], numOfSubdivisions);
+    divideTriangle(vertices[0], vertices[1], vertices[2], numOfSubdivisions, true);
 
     //  Configure WebGL
     gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -57,27 +58,33 @@ function twist(vector){
     return [x * cosAngle - y * sinAngle, x * sinAngle + y * cosAngle]
 }
 
-function divideTriangle(a, b, c, count){
+function divideTriangle(a, b, c, count, shouldTwist){
     // Recursion check
     if(count <= 0){
+        // Twist it if it should be twisted
+        if(shouldTwist){
+            a = twist(a);
+            b = twist(b);
+            c = twist(c);
+        }
+
         triangle(a, b, c);
+        console.log(trianglePoints);
+
     } else {
         // Bisect sides
         var ab = mix(a, b, 0.5);
         var ac = mix(a, c, 0.5);
         var bc = mix(b, c, 0.5);
-        count--;
 
         // Make new triangles
         divideTriangle(a, ab, ac, count - 1);
         divideTriangle(c, ac, bc, count - 1);
         divideTriangle(b, bc, ab, count - 1);
-
-        //FIX
     }
 }
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLES, 0, trianglePoints?.length);
+    gl.drawArrays( gl.TRIANGLES, 0, trianglePoints.length);
 }
