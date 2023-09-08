@@ -1,6 +1,4 @@
 var gl;
-var trianglePoints = [];
-var numOfSubdivisions = 5;
 
 window.onload = function init()
 {
@@ -9,7 +7,8 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    
+    var trianglePoints = [];
+    var numOfSubdivisions = 5;
 
     var vertices = [
         vec2(-1, -1),
@@ -60,7 +59,7 @@ function twist(vector){
 
 function divideTriangle(a, b, c, count){
     // Recursion check
-    if(count === 0){
+    if(count <= 0){
         triangle(a, b, c);
     } else {
         // Bisect sides
