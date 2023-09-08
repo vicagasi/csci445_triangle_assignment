@@ -7,24 +7,25 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    /* var vertices_1 = [
-        vec2(-0.4, -0.9),
-        vec2(0, -0.2),
-        vec2(0.4, -0.9)
-    ]; */
-
     var vertices_1 = [
         vec2(-0.4, -0.4),
-        vec2(0, 0.4),
+        vec2(0, 0.3),
         vec2(0.4, -0.4)
     ];
 
-    let translateAmountY = 0.6
+    let translateAmountY = 0.6;
+    let rotateAmount = 10;
 
     var vertices_2 = [
-        translateY(vertices_1[0], -translateAmountY),
-        translateY(vertices_1[1], -translateAmountY),
-        translateY(vertices_1[2], -translateAmountY)
+        twist(vertices_1[0]),
+        twist(vertices_1[1]),
+        twist(vertices_1[2])
+    ]
+
+    vertices_2 = [
+        translateY(vertices_2[0], -translateAmountY + 0.2),
+        translateY(vertices_2[1], -translateAmountY + 0.2),
+        translateY(vertices_2[2], -translateAmountY + 0.2)
     ];
 
     vertices_1 = [
@@ -55,21 +56,20 @@ window.onload = function init()
 
     // First draw
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLES, 0, 3);
+    gl.drawArrays( gl.LINE_LOOP, 0, 3);
 
-    // Load the data into the GPU
+    // 2nd load the data into the GPU
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices_2), gl.STATIC_DRAW);
 
-    // Associate out shader variables with our data buffer
+    // 2nd Associate out shader variables with our data buffer
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
+    // Second draw
     gl.drawArrays( gl.TRIANGLES, 0, 3);
-
-    // render();
 };
 
 function translateY(vector, translateAmountY){
