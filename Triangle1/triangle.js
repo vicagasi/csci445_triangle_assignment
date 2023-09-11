@@ -17,6 +17,7 @@ window.onload = function init()
         vec2(0.4, -0.4)
     ];
 
+    triangle(vertices[0], vertices[1], vertices[2])
     divideTriangle(vertices[0], vertices[1], vertices[2], numOfSubdivisions, true);
 
     //  Configure WebGL
@@ -42,7 +43,7 @@ window.onload = function init()
 
 // Make a triangle
 function triangle(a, b, c) {
-    trianglePoints.push(a, b, c);
+    trianglePoints.push(a, b, c, a);
 }
 
 function twist(vector){
@@ -81,10 +82,12 @@ function divideTriangle(a, b, c, count, shouldTwist){
         divideTriangle(a, ab, ac, count - 1);
         divideTriangle(c, ac, bc, count - 1);
         divideTriangle(b, bc, ab, count - 1);
+        divideTriangle(ab, bc, ac, count - 1);
+        divideTriangle(bc, ab, ac, count - 1);
     }
 }
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLES, 0, trianglePoints.length);
+    gl.drawArrays( gl.LINES, 0, trianglePoints.length);
 }
