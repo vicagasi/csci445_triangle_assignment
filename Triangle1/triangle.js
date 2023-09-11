@@ -9,16 +9,13 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    
-
     var vertices = [
         vec2(-0.4, -0.4),
         vec2(0, 0.4),
         vec2(0.4, -0.4)
     ];
 
-    triangle(vertices[0], vertices[1], vertices[2])
-    divideTriangle(vertices[0], vertices[1], vertices[2], numOfSubdivisions, true);
+    divideTriangle(vertices[0], vertices[1], vertices[2], numOfSubdivisions, false, 0.6, true);
 
     //  Configure WebGL
     gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -38,28 +35,58 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    render();
+    render(true, 0);
+
+    trianglePoints = [];
+    divideTriangle(vertices[0], vertices[1], vertices[2], numOfSubdivisions, true, -0.3, false);
+
+    // Load the data into the GPU
+    var bufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(trianglePoints), gl.STATIC_DRAW);
+
+    // Associate out shader variables with our data buffer
+    var vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vPosition );
+
+    render(false, 1);
 };
 
 // Make a triangle
-function triangle(a, b, c) {
-    trianglePoints.push(a, b, c, a);
+function triangle(a, b, c, lineFormat) {
+    if(lineFormat){
+        trianglePoints.push(a, b, c, a);
+    } else {
+        trianglePoints.push(a, b, c);
+    }
 }
 
 function twist(vector){
-    var angleValue = 100;
-    var angle = angleValue * Math.PI * 180;
+    var angle = 100;
 
     var x = vector[0],
-        y = vector[1],
-        d = Math.sqrt(x * x + y * y),
-        sinAngle = Math.sin(d * angle),
-        cosAngle = Math.cos(d * angle);
+        y = vector[1];
 
-    return [x * cosAngle - y * sinAngle, x * sinAngle + y * cosAngle]
+    var d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) * (angle * Math.PI / 180.0);
+
+    var sinAngle = Math.sin(d),
+        cosAngle = Math.cos(d);
+
+    var ax = ((x * cosAngle) - (y * sinAngle));
+    var ay = ((x * sinAngle) + (y * cosAngle));
+
+    return [ax, ay];
 }
 
-function divideTriangle(a, b, c, count, shouldTwist){
+function translateY(vector, translateAmountY){
+    var x = vector[0],
+        y = vector[1];
+
+    return [x, y + translateAmountY]
+}
+
+function divideTriangle(a, b, c, count, shouldTwist, translateAmountY, lineFormat){
     // Recursion check
     if(count <= 0){
         // Twist it if it should be twisted
@@ -69,7 +96,13 @@ function divideTriangle(a, b, c, count, shouldTwist){
             c = twist(c);
         }
 
-        triangle(a, b, c);
+        if(translateAmountY != 0){
+            a = translateY(a, translateAmountY);
+            b = translateY(b, translateAmountY);
+            c = translateY(c, translateAmountY);
+        }
+
+        triangle(a, b, c, lineFormat);
         console.log(trianglePoints);
 
     } else {
@@ -79,15 +112,40 @@ function divideTriangle(a, b, c, count, shouldTwist){
         var bc = mix(b, c, 0.5);
 
         // Make new triangles
-        divideTriangle(a, ab, ac, count - 1);
-        divideTriangle(c, ac, bc, count - 1);
-        divideTriangle(b, bc, ab, count - 1);
-        divideTriangle(ab, bc, ac, count - 1);
-        divideTriangle(bc, ab, ac, count - 1);
+        divideTriangle(a, ab, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
+        divideTriangle(c, ac, bc, count - 1, shouldTwist, translateAmountY, lineFormat);
+        divideTriangle(b, bc, ab, count - 1, shouldTwist, translateAmountY, lineFormat);
+
+        if(lineFormat){
+
+            divideTriangle(ab, bc, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
+            divideTriangle(bc, ab, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
+
+        }
     }
 }
 
-function render() {
-    gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.LINES, 0, trianglePoints.length);
+function render(clear, type) {
+    if(clear){
+        gl.clear( gl.COLOR_BUFFER_BIT );
+    }
+
+    switch (type) {
+        case 0:
+            gl.drawArrays( gl.LINES, 0, trianglePoints.length);
+            break;
+        case 1:
+            gl.drawArrays( gl.TRIANGLES, 0, trianglePoints.length);
+            break;
+        case 2:
+            gl.drawArrays( gl.TRIANGLE_STRIP, 0, trianglePoints.length);
+            break;
+        case 3:
+            gl.drawArrays( gl.TRIANGLE_FAN, 0, trianglePoints.length);
+            break;
+        default:
+            gl.drawArrays( gl.LINES, 0, trianglePoints.length);
+            break;
+    }
+    
 }
