@@ -80,16 +80,20 @@ function translateY(vector, translateAmountY){
 }
 
 function twist(vector){
-    var angleValue = 100;
-    var angle = angleValue * Math.PI * 180;
+    var angle = 100;
 
     var x = vector[0],
-        y = vector[1],
-        d = Math.sqrt(x * x + y * y),
-        sinAngle = Math.sin(d * angle),
-        cosAngle = Math.cos(d * angle);
+        y = vector[1];
 
-    return [x * cosAngle - y * sinAngle, x * sinAngle + y * cosAngle]
+    var d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) * (angle * Math.PI / 180.0);
+
+    var sinAngle = Math.sin(d),
+        cosAngle = Math.cos(d);
+
+    var ax = ((x * cosAngle) - (y * sinAngle));
+    var ay = ((x * sinAngle) + (y * cosAngle));
+
+    return [ax, ay];
 }
 
 function render() {
