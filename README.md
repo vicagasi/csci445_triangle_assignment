@@ -8,8 +8,7 @@ Features drawing and rotation of basic triangles. As well as tessilation and twi
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+* A non-Internet Explorer web-brower. Use Chrome or Firefox for best results.
 
 ### Executing program
 
@@ -26,4 +25,4 @@ Victor Gasior III
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the GPL-3.0 license - see the LICENSE.md file for details
