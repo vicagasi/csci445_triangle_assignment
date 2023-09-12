@@ -116,12 +116,9 @@ function divideTriangle(a, b, c, count, shouldTwist, translateAmountY, lineForma
         divideTriangle(c, ac, bc, count - 1, shouldTwist, translateAmountY, lineFormat);
         divideTriangle(b, bc, ab, count - 1, shouldTwist, translateAmountY, lineFormat);
 
-        if(lineFormat){
+        divideTriangle(ab, bc, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
+        divideTriangle(bc, ab, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
 
-            divideTriangle(ab, bc, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
-            divideTriangle(bc, ab, ac, count - 1, shouldTwist, translateAmountY, lineFormat);
-
-        }
     }
 }
 
